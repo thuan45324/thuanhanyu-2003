@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinese Buddy</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f7fb;
+    color: #172033;
+}
+
+header {
+    background: linear-gradient(135deg, #e53935, #ff7043);
+    color: white;
+    padding: 28px 20px;
+    border-radius: 0 0 28px 28px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    margin: 8px 0 0;
+    opacity: .9;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: -10px;
+}
+
+.stat {
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.06);
+}
+
+.stat strong {
+    display: block;
+    font-size: 25px;
+    color: #e53935;
+}
+
+nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin: 25px 0 18px;
+}
+
+nav button {
+    border: 0;
+    background: white;
+    padding: 12px 18px;
+    border-radius: 999px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+nav button.active {
+    background: #e53935;
+    color: white;
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+.levels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.level {
+    background: white;
+    padding: 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,0,0,.05);
+}
+
+.level h2 {
+    margin-top: 0;
+}
+
+.progress {
+    height: 8px;
+    background: #eee;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress div {
+    height: 100%;
+    background: #e53935;
+}
+
+.card {
+    background: white;
+    border-radius: 25px;
+    padding: 35px 20px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,.07);
+}
+
+.hanzi {
+    font-size: 64px;
+    margin: 15px 0;
+}
+
+.pinyin {
+    font-size: 24px;
+    color: #e53935;
+}
+
+.meaning {
+    font-size: 20px;
+    margin: 12px;
+}
+
+button.primary {
+    background: #e53935;
+    color: white;
+    border: 0;
+    padding: 13px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button.secondary {
+    background: #eee;
+    border: 0;
+    padding: 13px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.word {
+    background: white;
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.word .hanzi-small {
+    font-size: 25px;
+}
+
+.quiz-option {
+    width: 100%;
+    margin: 8px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.quiz-option:hover {
+    border-color: #e53935;
+}
+
+@media(max-width:600px) {
+    .levels {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat {
+        padding: 12px;
+    }
+
+    .hanzi {
+        font-size: 52px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <h1>🇨🇳 Chinese Buddy</h1>
+        <p>Học tiếng Trung mỗi ngày</p>
+    </div>
+</header>
+
+<div class="container">
+
+<div class="stats">
+    <div class="stat">
+        <strong id="learned">0</strong>
+        Đã học
+    </div>
+    <div class="stat">
+        <strong id="score">0</strong>
+        Điểm
+    </div>
+    <div class="stat">
+        <strong id="streak">1</strong>
+        Ngày 🔥
+    </div>
+</div>
+
+<nav>
+    <button class="active" onclick="showSection('home', this)">🏠 Trang chủ</button>
+    <button onclick="showSection('words', this)">📚 Từ vựng</button>
+    <button onclick="showSection('flashcard', this)">🃏 Flashcard</button>
+    <button onclick="showSection('quiz', this)">📝 Quiz</button>
+</nav>
+
+<section id="home" class="section active">
+
+<h2>Chọn trình độ</h2>
+
+<div class="levels">
+
+<div class="level" onclick="selectLevel(1)">
+<h2>HSK 1</h2>
+<p>Cơ bản</p>
+<div class="progress"><div style="width:0%" id="p1"></div></div>
+</div>
+
+<div class="level" onclick="selectLevel(2)">
+<h2>HSK 2</h2>
+<p>Sơ cấp</p>
+<div class="progress"><div style="width:0%" id="p2"></div></div>
+</div>
+
+<div class="level" onclick="selectLevel(3)">
+<h2>HSK 3</h2>
+<p>Trung cấp</p>
+<div class="progress"><div style="width:0%" id="p3"></div></div>
+</div>
+
+</div>
+
+</section>
+
+<section id="words" class="section">
+
+<h2>📚 Từ vựng</h2>
+
+<input
+    id="search"
+    placeholder="Tìm chữ Hán, pinyin hoặc nghĩa..."
+    oninput="renderWords()"
+>
+
+<div id="wordList"></div>
+
+</section>
+
+<section id="flashcard" class="section">
+
+<h2>🃏 Flashcard</h2>
+
+<div class="card">
+
+<div id="flashLevel">HSK 1</div>
+
+<div class="hanzi" id="flashHanzi">你好</div>
+
+<div class="pinyin" id="flashPinyin">nǐ hǎo</div>
+
+<div class="meaning" id="flashMeaning">
+Xin chào
+</div>
+
+<p id="example">你好，我叫小明。</p>
+
+<div class="actions">
+
+<button class="secondary" onclick="speakWord()">
+🔊 Nghe
+</button>
+
+<button class="primary" onclick="nextCard()">
+➡️ Từ tiếp
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="quiz" class="section">
+
+<h2>📝 Quiz</h2>
+
+<div class="card">
+
+<h3 id="quizQuestion">你好 nghĩa là gì?</h3>
+
+<div id="quizOptions"></div>
+
+<p id="quizResult"></p>
+
+<button class="primary" onclick="newQuiz()">
+Câu tiếp theo
+</button>
+
+</div>
+
+</section>
+
+</div>
+
+<script>
+
+const words = [
+
+/* HSK 1 */
+
+{
+h:"你好",
+p:"nǐ hǎo",
+m:"xin chào",
+l:1,
+e:"你好，我叫小明。"
+},
+
+{
+h:"谢谢",
+p:"xièxie",
+m:"cảm ơn",
+l:1,
+e:"谢谢你。"
+},
+
+{
+h:"再见",
+p:"zàijiàn",
+m:"tạm biệt",
+l:1,
+e:"明天再见。"
+},
+
+{
+h:"爱",
+p:"ài",
+m:"yêu, thích",
+l:1,
+e:"我爱中国。"
+},
+
+{
+h:"爸爸",
+p:"bàba",
+m:"bố, ba",
+l:1,
+e:"我爸爸是老师。"
+},
+
+{
+h:"妈妈",
+p:"māma",
+m:"mẹ",
+l:1,
+e:"我妈妈很好。"
+},
+
+{
+h:"学生",
+p:"xuésheng",
+m:"học sinh",
+l:1,
+e:"我是学生。"
+},
+
+{
+h:"老师",
+p:"lǎoshī",
+m:"giáo viên",
+l:1,
+e:"她是老师。"
+},
+
+{
+h:"朋友",
+p:"péngyou",
+m:"bạn bè",
+l:1,
+e:"他是我的朋友。"
+},
+
+{
+h:"中国",
+p:"Zhōngguó",
+m:"Trung Quốc",
+l:1,
+e:"我喜欢中国。"
+},
+
+/* HSK 2 */
+
+{
+h:"觉得",
+p:"juéde",
+m:"cảm thấy",
+l:2,
+e:"我觉得很好。"
+},
+
+{
+h:"希望",
+p:"xīwàng",
+m:"hy vọng",
+l:2,
+e:"我希望明天见你。"
+},
+
+{
+h:"开始",
+p:"kāishǐ",
+m:"bắt đầu",
+l:2,
+e:"我们开始学习。"
+},
+
+{
+h:"已经",
+p:"yǐjīng",
+m:"đã",
+l:2,
+e:"我已经吃饭了。"
+},
+
+{
+h:"时间",
+p:"shíjiān",
+m:"thời gian",
+l:2,
+e:"现在没有时间。"
+},
+
+{
+h:"问题",
+p:"wèntí",
+m:"câu hỏi, vấn đề",
+l:2,
+e:"我有一个问题。"
+},
+
+/* HSK 3 */
+
+{
+h:"提高",
+p:"tígāo",
+m:"nâng cao",
+l:3,
+e:"我要提高汉语水平。"
+},
+
+{
+h:"了解",
+p:"liǎojiě",
+m:"tìm hiểu, hiểu",
+l:3,
+e:"我想了解中国文化。"
+},
+
+{
+h:"环境",
+p:"huánjìng",
+m:"môi trường",
+l:3,
+e:"这里的环境很好。"
+},
+
+{
+h:"重要",
+p:"zhòngyào",
+m:"quan trọng",
+l:3,
+e:"学习很重要。"
+},
+
+{
+h:"习惯",
+p:"xíguàn",
+m:"thói quen",
+l:3,
+e:"我习惯早起。"
+}
+
+];
+
+let currentLevel = 1;
+let currentCard = 0;
+let quizWord = null;
+
+let learned = Number(localStorage.getItem("learned") || 0);
+let score = Number(localStorage.getItem("score") || 0);
+
+function save() {
+    localStorage.setItem("learned", learned);
+    localStorage.setItem("score", score);
+
+    document.getElementById("learned").textContent = learned;
+    document.getElementById("score").textContent = score;
+}
+
+function showSection(id, button) {
+
+    document.querySelectorAll(".section")
+        .forEach(x => x.classList.remove("active"));
+
+    document.getElementById(id).classList.add("active");
+
+    document.querySelectorAll("nav button")
+        .forEach(x => x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    if(id === "words") renderWords();
+    if(id === "quiz") newQuiz();
+}
+
+function selectLevel(level) {
+
+    currentLevel = level;
+
+    showSection(
+        "flashcard",
+        document.querySelectorAll("nav button")[2]
+    );
+
+    currentCard = 0;
+
+    updateCard();
+}
+
+function updateCard() {
+
+    const list = words.filter(w => w.l === currentLevel);
+
+    if(!list.length) return;
+
+    const word = list[currentCard % list.length];
+
+    document.getElementById("flashLevel").textContent =
+        "HSK " + word.l;
+
+    document.getElementById("flashHanzi").textContent =
+        word.h;
+
+    document.getElementById("flashPinyin").textContent =
+        word.p;
+
+    document.getElementById("flashMeaning").textContent =
+        word.m;
+
+    document.getElementById("example").textContent =
+        word.e;
+}
+
+function nextCard() {
+
+    currentCard++;
+
+    learned++;
+
+    save();
+
+    updateCard();
+}
+
+function speakWord() {
+
+    const text =
+        document.getElementById("flashHanzi").textContent;
+
+    if("speechSynthesis" in window) {
+
+        const speech =
+            new SpeechSynthesisUtterance(text);
+
+        speech.lang = "zh-CN";
+        speech.rate = .8;
+
+        speechSynthesis.speak(speech);
+    }
+}
+
+function renderWords() {
+
+    const query =
+        document.getElementById("search").value.toLowerCase();
+
+    const list =
+        words.filter(w =>
+            w.h.toLowerCase().includes(query) ||
+            w.p.toLowerCase().includes(query) ||
+            w.m.toLowerCase().includes(query)
+        );
+
+    const container =
+        document.getElementById("wordList");
+
+    container.innerHTML = "";
+
+    list.forEach(w => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "word";
+
+        div.innerHTML = `
+            <div>
+                <strong class="hanzi-small">${w.h}</strong>
+                <br>
+                <span>${w.p}</span>
+                <br>
+                <span>${w.m}</span>
+            </div>
+
+            <button class="secondary"
+                onclick="speak('${w.h}')">
+                🔊
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+function speak(text) {
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+    speech.lang = "zh-CN";
+    speech.rate = .8;
+
+    speechSynthesis.speak(speech);
+}
+
+function newQuiz() {
+
+    quizWord =
+        words[Math.floor(Math.random() * words.length)];
+
+    document.getElementById("quizQuestion")
+        .textContent =
+        `${quizWord.h} nghĩa là gì?`;
+
+    const others =
+        words
+        .filter(w => w !== quizWord)
+        .sort(() => Math.random() - .5)
+        .slice(0,3);
+
+    const options =
+        [...others, quizWord]
+        .sort(() => Math.random() - .5);
+
+    const container =
+        document.getElementById("quizOptions");
+
+    container.innerHTML = "";
+
+    document.getElementById("quizResult")
+        .textContent = "";
+
+    options.forEach(option => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "quiz-option";
+
+        button.textContent = option.m;
+
+        button.onclick = () =>
+            answerQuiz(option);
+
+        container.appendChild(button);
+    });
+}
+
+function answerQuiz(option) {
+
+    const result =
+        document.getElementById("quizResult");
+
+    if(option === quizWord) {
+
+        result.textContent =
+            "✅ Chính xác! +10 điểm";
+
+        score += 10;
+
+    } else {
+
+        result.textContent =
+            "❌ Chưa đúng. Đáp án: " +
+            quizWord.m;
+    }
+
+    save();
+}
+
+save();
+updateCard();
+
+</script>
+
+</body>
+</html>
